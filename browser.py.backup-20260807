@@ -1,0 +1,83 @@
+import sys
+from PyQt6.QtCore import QUrl
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QLineEdit, QPushButton
+from PyQt6.QtWebEngineCore import QWebEngineProfile
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+
+class SimpleBrowser(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Plain Web Browser")
+        self.setGeometry(100, 100, 1200, 800)
+
+        # Main layout container
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        main_layout = QVBoxLayout(central_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        # Navigation Bar Layout
+        nav_layout = QHBoxLayout()
+        
+        # Navigation Buttons
+        self.back_btn = QPushButton("◀")
+        self.back_btn.clicked.connect(self.navigate_back)
+        nav_layout.addWidget(self.back_btn)
+
+        self.forward_btn = QPushButton("▶")
+        self.forward_btn.clicked.connect(self.navigate_forward)
+        nav_layout.addWidget(self.forward_btn)
+
+        self.reload_btn = QPushButton("🔄")
+        self.reload_btn.clicked.connect(self.reload_page)
+        nav_layout.addWidget(self.reload_btn)
+
+        # Address Bar
+        self.address_bar = QLineEdit()
+        self.address_bar.returnPressed.connect(self.load_url)
+        nav_layout.addWidget(self.address_bar)
+
+        # Go Button
+        self.go_btn = QPushButton("Go")
+        self.go_btn.clicked.connect(self.load_url)
+        nav_layout.addWidget(self.go_btn)
+
+        main_layout.addLayout(nav_layout)
+
+        # Configure Web Engine Profile (Enables standard video playback features)
+        profile = QWebEngineProfile.defaultProfile()
+        profile.setPersistentCookiesPolicy(QWebEngineProfile.PersistentCookiesPolicy.AllowPersistentCookies)
+
+        # Web View Component
+        self.web_view = QWebEngineView()
+        self.web_view.urlChanged.connect(self.update_address_bar)
+        main_layout.addWidget(self.web_view)
+
+        # Load default homepage
+        self.web_view.setUrl(QUrl("https://youtube.com"))
+
+    def load_url(self):
+        text = self.address_bar.text()
+        # Automatically prepend https:// if the user omits it
+        if not text.startswith("http://") and not text.startswith("https://"):
+            text = "https://" + text
+        self.web_view.setUrl(QUrl(text))
+
+    def update_address_bar(self, url):
+        self.address_bar.setText(url.toString())
+
+    def navigate_back(self):
+        self.web_view.back()
+
+    def navigate_forward(self):
+        self.web_view.forward()
+
+    def reload_page(self):
+        self.web_view.reload()
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    browser = SimpleBrowser()
+    browser.show()
+    sys.exit(app.exec())
