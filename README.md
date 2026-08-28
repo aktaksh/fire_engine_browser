@@ -60,3 +60,5 @@ This project does not implement password storage, persistent history, account
 sync, extensions, silent permissions, TLS-error bypasses, or background downloads.
 Those features either conflict with private-by-default operation or require a much
 larger security and maintenance surface.
+  
+  
